@@ -1,5 +1,11 @@
-getwd()
+##Diego - 31/10/2021
 
-atlantic_ants <- read.table(file = "ATLANTIC_ANTS_dataset.txt", dec = ",",
-                            header = FALSE, sep = " ")
+# conferir diretório
+here::here()
+
+# criar um arquivo .here
+here::set_here()
+
+# importar tabela
+
 
