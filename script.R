@@ -1,23 +1,24 @@
 ##Diego - 31/10/2021
 
+
+#install packages (Bianca-01/11/2021)
+install.packages("tidyverse")
+install.packages("here")
+install.packages("tidyr")
+install.packages("dplyr")
+
+
+#library packages (Bianca-01/11/2021)
+library(tidyverse)
+library(here)
+library(tidyr)
+library(dplyr)
+
 # conferir diretório
 here::here()
 
 # criar um arquivo .here
 here::set_here()
-
-# importar tabela
-
-
-#install packages (Bianca-01/11/2021)
-install.packages("tidyverse")
-library(tidyverse)
-install.packages("here")
-library(here)
-install.packages("tidyr")
-library(tidyr)
-install.packages("dplyr")
-library(dplyr)
 
 
 #verificar diretório (Bianca-01/11/2021)
@@ -53,3 +54,16 @@ dplyr::arrange(Genus)
 #Exportar tabela com gêneros selecionados em ordem (Bianca-01/11/2021)
 write.table(ants_arrange, "AANTS_genus_selected.txt", 
             row.names = FALSE, col.names = TRUE, quote = FALSE)
+
+#importar tabela com os gêneros selecionados (Diego-02/11/2021)
+
+ants_genus_select  <- readr::read_delim(here::here("Atlantic_Ants-main", "DATASET", 
+                                                 "AANTS_genus_selected.txt"))
+spec(ants_genus_select)
+view(ants_genus_select)
+ncol(ants_genus_select)
+nrow(ants_genus_select)
+summary(ants_genus_select)
+str(ants_genus_select)
+
+#
