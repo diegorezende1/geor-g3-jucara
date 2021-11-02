@@ -66,4 +66,20 @@ nrow(ants_genus_select)
 summary(ants_genus_select)
 str(ants_genus_select)
 
-#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
