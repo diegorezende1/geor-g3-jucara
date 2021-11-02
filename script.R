@@ -66,6 +66,7 @@ nrow(ants_genus_select)
 summary(ants_genus_select)
 str(ants_genus_select)
 
+<<<<<<< HEAD
 
 
 
@@ -83,3 +84,62 @@ str(ants_genus_select)
 
 
 
+=======
+##Install packages (Maria Alice-02/11/2021) 
+
+install.packages("dismo")
+install.packages("maptools")
+install.packages("rgdal")
+install.packages("raster")
+install.packages("sp")
+
+#Library packages (Maria Alice-02/11/2021)
+
+library("sp")
+library("raster")
+library("maptools")
+library("rgdal")
+library("dismo")
+
+#Baixando os dados de temperatura do worldclim (temperatura média) (Maria Alice-02/11/2021)
+
+bioclim.data <- getData(name = "worldclim",
+                        var = "bio1",
+                        res = 2.5,
+                        path = "data/"Atlantic_Ants-main"
+ants))
+
+#Ler dados
+obs.data <- read.csv(file = "data/Atlantic_Ants-main.csv"
+
+#Verificar dados
+
+summary(obs.data)
+
+#Determinando a extensão geográfica dos dados (Maria Alice-02/11/2021)
+
+max.lat <- ceiling(max(obs.data$latitude))
+min.lat <- floor(min(obs.data$latitude))
+max.lon <- ceiling(max(obs.data$longitude))
+min.lon <- floor(min(obs.data$longitude))
+geographic.extent <- extent(x = c(min.lon, max.lon, min.lat, max.lat))
+
+#Carregando os dados para mapa de base(world_simpl) (Maria Alice-02/11/2021)
+
+#Plotando mapa base
+plot(wrld_simpl, 
+     xlim = c(min.lon, max.lon),
+     ylim = c(min.lat, max.lat),
+     axes = TRUE, 
+     col = "grey"
+
+# Adicionar pontos para observação individual (Maria Alice-02/11/2021)
+(x = obs.data$longitude, 
+       y = obs.data$latitude, 
+       col = "olive", 
+       pch = 20, 
+       cex = 0.75)
+
+# Desenhar caixa ao redor do gráfico (Maria Alice-02/11/2021)
+box()
+>>>>>>> 8cb61c298adecf15988d4269b8219f62742ac0a9
