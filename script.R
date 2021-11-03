@@ -1,5 +1,4 @@
 ##Diego - 31/10/2021
-
 #'Espécies escolhidas 
 #'Eciton burchelli > CTmáx= 40º
 #'Solenopsis invicta > CTmáx= 45.3°C
@@ -24,21 +23,20 @@ library(tidyverse)
 library(here)
 library(tidyr)
 library(dplyr)
-library(sf)
-library(maxnet)
-library(glmnet)
 library("sp")
 library("raster")
 library("maptools")
 library("rgdal")
-library(dismo)
+library("dismo")
 library(tmap)
-        
+
+
 # conferir diretório
 here::here()
 
 # criar um arquivo .here
 here::set_here()
+
 
 #verificar diretório (Bianca-01/11/2021)
 getwd()
@@ -78,7 +76,6 @@ write.table(ants_arrange, "AANTS_genus_selected.txt",
 
 ants_genus_select  <- readr::read_delim(here::here("Atlantic_Ants-main", "DATASET", 
                                                  "AANTS_genus_selected.txt"))
-ants_genus_select
 spec(ants_genus_select)
 view(ants_genus_select)
 ncol(ants_genus_select)
@@ -91,17 +88,15 @@ str(ants_genus_select)
 
 ants_genus_select <- ants_genus_select %>% 
        dplyr::select(Genus, Species, Latitude.y, Longitude.x)
-ants_genus_select
 view(ants_genus_select)
 
-#unir as colunas Genus e Species (Diego-02/11/2021)
+#unir as colunas Genus e Speceies (Diego-02/11/2021)
 
 ants_genus_select  <- tidyr::unite(data = ants_genus_select, 
                                    col = "sp",
                                    Genus:Species, 
                                    sep = " ",
                                    remove = FALSE)
-ants_genus_select
 view(ants_genus_select )
 
 #Selecionar as espécies (Diego-03/11/2021)
@@ -117,11 +112,8 @@ view(ants_sp_select)
 # criar geometria a partir dos dados de latlong (Luan 03-11)
 
 ants_sp_sf <- ants_sp_select %>% sf::st_as_sf(coords = c("Longitude.x", "Latitude.y"), crs = 4326)
-ants_sp_sf
 
-tm_shape(ants_sp_sf) +
-  tm_bubbles(col = "sp", size = .3)
-
+#=======
 
 
 #Baixando os dados de temperatura do worldclim (Maria Alice-02/11/2021)
@@ -139,28 +131,42 @@ download.file(url = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/fut/5m/wc2.1
 unzip("worldclim/wc2.1_5m_tmax.zip", exdir = "worldclim")
 unzip("worldclim/wc2.1_5m_tmax_CanESM5_ssp245_2081-2100.zip", exdir = "worldclim")
 unzip("worldclim/wc2.1_5m_tmax_CanESM5_ssp585_2081-2100.zip", exdir = "worldclim")
-# depois de unzip, pegar o arquivo .tif futuro lah no final das pastas e jogar para uma 
-# pasta chamada "future" no diretorio "worldclim"
+
 
 # import ------------------------------------------------------------------
 
 # raster
-tmax_presente <- raster::stack(dir(path = "worldclim", pattern = ".tif"))
-tmax_presente
-
-tmax_fut_sonho_meu <- raster::stack(dir(path = "worldclim/future", pattern = "CanESM5_ssp245_2081-2100")) %>% 
+tmax_presente <- raster::stack(dir(path = here::here("worldclim"), pattern = ".tif"))
+tmax_presente_mean <- raster::stack(dir(path = here::here("worldclim"), pattern = ".tif")) %>% 
   mean()
-tmax_fut_sonho_meu
+tmax_presente_mean
 
-tmax_fut_armagedom <- raster::stack(dir(pattern = "CanESM5_ssp245_2081-2100")) %>% 
+# Previsao 1 (2100 cenario de acao)
+tmax_fut_1 <- raster::stack(dir(path = here::here("worldclim/future"), pattern = "CanESM5_ssp245_2081-2100"))
+tmax_fut_1_mean <- raster::stack(dir(path = here::here("worldclim/future"), pattern = "CanESM5_ssp245_2081-2100")) %>% 
   mean()
-tmax_fut_armagedom
+tmax_fut_1_mean
+
+# Previsao 2 (2100 cenario de continuar aquecendo)
+tmax_fut_2 <- raster::stack(dir(pattern = "CanESM5_ssp585_2081-2100"))
+tmax_fut_2_mean <- raster::stack(dir(pattern = "CanESM5_ssp585_2081-2100")) %>% 
+  mean()
+tmax_fut_2_mean
 
 # extrair -----------------------------------------------------------------
 
 ants_sp_sf_values <- ants_sp_sf %>% 
-  dplyr::mutate(tmax_presente = raster::extract(tmax_presente, .))
+  dplyr::mutate(tmax_presente = raster::extract(tmax_presente_mean, .))
 ants_sp_sf_values
+
+ants_sp_sf_values <- ants_sp_sf_values %>% 
+  dplyr::mutate(tmax_fut_1 = raster::extract(tmax_fut_1_mean, .))
+ants_sp_sf_values
+
+ants_sp_sf_values <- ants_sp_sf_values %>% 
+  dplyr::mutate(tmax_fut_2 = raster::extract(tmax_fut_2_mean, .))
+ants_sp_sf_values
+
 
 ants_sp_sf_values %>% 
   group_by(sp) %>% 
@@ -169,3 +175,9 @@ ants_sp_sf_values %>%
 
 tm_shape(ants_sp_sf_values) +
   tm_bubbles(col = "tmax_presente", size = .3)
+
+tm_shape(ants_sp_sf_values) +
+  tm_bubbles(col = "tmax_fut_1", size = .3)
+
+tm_shape(ants_sp_sf_values) +
+  tm_bubbles(col = "tmax_fut_2", size = .3, alpha = 0.5)
