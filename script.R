@@ -1,5 +1,10 @@
 ##Diego - 31/10/2021
 
+#'Espécies escolhidas 
+#'Eciton burchelli > CTmáx= 40º
+#'Solenopsis invicta > CTmáx= 45.3°C
+#'Ectatomma brunneum > CTmáx= 40º
+
 
 #install packages (Bianca-01/11/2021)
 install.packages("tidyverse")
@@ -82,15 +87,16 @@ ants_genus_select  <- tidyr::unite(data = ants_genus_select,
                                    remove = FALSE)
 view(ants_genus_select )
 
-#unir as colunas Latitude.x e Longitude.x para criar geometria e fazer o plot de localização (Diego-02/11/2021)
+#Selecionar as espécies (Diego-03/11/2021)
+ants_sp_select <- ants_genus_select %>%
+  dplyr::filter(sp %in% c("Eciton burchelli", "Solenopsis invicta", "Ectatomma brunneum"))
+ants_sp_select
 
-Genus_Species_unir <- tidyr::unite(data = ants_genus_select, 
-                                   col = "Geometry",
-                                   Latitude.y:Longitude.x, 
-                                   sep = ", ",
-                                   remove = FALSE)
+view(ants_sp_select)
 
-view(ants_genus_select) 
+#criar um objeto sf (Diego-03/11/2021)
+
+
 #=======
 ##Install packages (Maria Alice-02/11/2021) 
 
@@ -140,7 +146,7 @@ plot(wrld_simpl,
      xlim = c(min.lon, max.lon),
      ylim = c(min.lat, max.lat),
      axes = TRUE, 
-     col = "grey"
+     col = "grey")
 
 # Adicionar pontos para observação individual (Maria Alice-02/11/2021)
 (x = obs.data$longitude, 
