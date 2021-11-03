@@ -91,6 +91,18 @@ Genus_Species_unir <- tidyr::unite(data = ants_genus_select,
                                    remove = FALSE)
 
 view(ants_genus_select) 
+
+
+# criar geometria com a funcao st_multipoint (Luan 03-11)
+geometria_ants <- st_multipoint(matrix(c(ants_genus_select$Longitude.x, ants_genus_select$Latitude.y), byrow = FALSE, ncol =  2))
+plot(geometria_ants, axes = T, graticule = T)
+
+# adiciona informacao de projecao e datum (wgs84 geodetico nosso dados)
+geom_ants_sfc <- st_sfc(geometria_ants, crs = 4326)
+plot(geom_ants_sfc, axes = T, graticule = T)
+
+ants_genus_select <- st_sf(ants_genus_select, geometry = geom_ants_sfc)
+
 #=======
 ##Install packages (Maria Alice-02/11/2021) 
 
