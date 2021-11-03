@@ -91,7 +91,7 @@ Genus_Species_unir <- tidyr::unite(data = ants_genus_select,
                                    remove = FALSE)
 
 view(ants_genus_select) 
-=======
+#=======
 ##Install packages (Maria Alice-02/11/2021) 
 
 install.packages("dismo")
@@ -113,7 +113,7 @@ library("dismo")
 bioclim.data <- getData(name = "worldclim",
                         var = "bio1",
                         res = 2.5,
-                        path = "data/"Atlantic_Ants-main")
+                        path = "data/Atlantic_Ants-main")
                         
 ants
 
