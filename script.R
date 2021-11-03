@@ -121,12 +121,8 @@ ants_sp_sf <- ants_sp_select %>% sf::st_as_sf(coords = c("Longitude.x", "Latitud
 
 #Baixando os dados de temperatura do worldclim (temperatura média) (Maria Alice-02/11/2021)
 
-bioclim.data <- getData(name = "worldclim",
-                        var = "bio1",
-                        res = 2.5,
-                        path = "Atlantic_Ants-main")
+bioclim.data <- getData(name = "worldclim", var = "bio1", res = 2.5, path = "Atlantic_Ants-main")
                         
-ants
 
 #Ler dados
 
@@ -147,18 +143,10 @@ geographic.extent <- extent(x = c(min.lon, max.lon, min.lat, max.lat))
 #Carregando os dados para mapa de base(world_simpl) (Maria Alice-02/11/2021)
 
 #Plotando mapa base
-plot(wrld_simpl, 
-     xlim = c(min.lon, max.lon),
-     ylim = c(min.lat, max.lat),
-     axes = TRUE, 
-     col = "grey")
+plot(wrld_simpl, xlim = c(min.lon, max.lon), ylim = c(min.lat, max.lat), axes = TRUE, col = "grey")
 
 # Adicionar pontos para observação individual (Maria Alice-02/11/2021)
-(x = obs.data$longitude, 
-       y = obs.data$latitude, 
-       col = "olive", 
-       pch = 20, 
-       cex = 0.75)
+(x = obs.data$longitude, y = obs.data$latitude, col = "olive", pch = 20, cex = 0.75)
 
 # Desenhar caixa ao redor do gráfico (Maria Alice-02/11/2021)
 box()
