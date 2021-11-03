@@ -113,13 +113,13 @@ library("dismo")
 bioclim.data <- getData(name = "worldclim",
                         var = "bio1",
                         res = 2.5,
-                        path = "data/Atlantic_Ants-main")
+                        path = "Atlantic_Ants-main")
                         
 ants
 
 #Ler dados
 
-obs.data <- read.csv(file = "data/Atlantic_Ants-main.csv")
+obs.data <- read.csv(file = "Atlantic_Ants-main.csv")
 
 #Verificar dados
 
@@ -140,7 +140,7 @@ plot(wrld_simpl,
      xlim = c(min.lon, max.lon),
      ylim = c(min.lat, max.lat),
      axes = TRUE, 
-     col = "grey"
+     col = "grey")
 
 # Adicionar pontos para observação individual (Maria Alice-02/11/2021)
 (x = obs.data$longitude, 
@@ -151,4 +151,3 @@ plot(wrld_simpl,
 
 # Desenhar caixa ao redor do gráfico (Maria Alice-02/11/2021)
 box()
->>>>>>> 8cb61c298adecf15988d4269b8219f62742ac0a9
