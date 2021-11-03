@@ -119,7 +119,7 @@ ants_sp_sf <- ants_sp_select %>% sf::st_as_sf(coords = c("Longitude.x", "Latitud
 #=======
 
 
-#Baixando os dados de temperatura do worldclim (temperatura média) (Maria Alice-02/11/2021)
+#Baixando os dados de temperatura do worldclim (Maria Alice-02/11/2021)
 
 bioclim.data <- getData(name = "worldclim", var = "bio", res = 2.5, path = "Atlantic_Ants-main")
                         
