@@ -11,6 +11,12 @@ install.packages("tidyverse")
 install.packages("here")
 install.packages("tidyr")
 install.packages("dplyr")
+install.packages("dismo")
+install.packages("maptools")
+install.packages("rgdal")
+install.packages("raster")
+install.packages("sp")
+
 
 
 #library packages (Bianca-01/11/2021)
@@ -18,6 +24,12 @@ library(tidyverse)
 library(here)
 library(tidyr)
 library(dplyr)
+library(sf)
+library("sp")
+library("raster")
+library("maptools")
+library("rgdal")
+library(dismo)
 
 # conferir diretório
 here::here()
@@ -108,21 +120,7 @@ plot(geom_ants_sfc, axes = T, graticule = T)
 ants_sp_sf <- st_sf(ants_sp_select, geometry = geom_ants_sfc)
 
 #=======
-##Install packages (Maria Alice-02/11/2021) 
 
-install.packages("dismo")
-install.packages("maptools")
-install.packages("rgdal")
-install.packages("raster")
-install.packages("sp")
-
-#Library packages (Maria Alice-02/11/2021)
-
-library("sp")
-library("raster")
-library("maptools")
-library("rgdal")
-library("dismo")
 
 #Baixando os dados de temperatura do worldclim (temperatura média) (Maria Alice-02/11/2021)
 
