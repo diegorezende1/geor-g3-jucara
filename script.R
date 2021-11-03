@@ -150,3 +150,8 @@ plot(wrld_simpl, xlim = c(min.lon, max.lon), ylim = c(min.lat, max.lat), axes = 
 
 # Desenhar caixa ao redor do gráfico (Maria Alice-02/11/2021)
 box()
+
+# Projeção para o futuro (condições ambientais mais extremas) 
+
+futureEnv=getData('CMIP5', var='bio', res=2.5, rcp=85, model='HE', year=40)
+names(futureEnv)=names(currentEnv)
