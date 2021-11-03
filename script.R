@@ -19,6 +19,8 @@ library(here)
 library(tidyr)
 library(dplyr)
 library(sf)
+library(maxnet)
+library(glmnet)
 
 # conferir diretório
 here::here()
