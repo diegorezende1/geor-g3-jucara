@@ -25,27 +25,20 @@ library(here)
 library(tidyr)
 library(dplyr)
 library(sf)
-<<<<<<< HEAD
-library("sp")
-library("raster")
-library("maptools")
-library("rgdal")
-library(dismo)
-=======
->>>>>>> 7a3205e136e44a05075788135d0fdaf2941fab5e
-
+library(raster)
+library(tmap)
+        
 # conferir diretório
 here::here()
 
 # criar um arquivo .here
 here::set_here()
 
-
 #verificar diretório (Bianca-01/11/2021)
 getwd()
 
 #definir diretório de trabalho (Bianca-01/11/2021)
-setwd("C:/github/geor-g3-jucara/Atlantic_Ants-main/DATASET")
+# setwd("C:/github/geor-g3-jucara/Atlantic_Ants-main/DATASET")
 
 #importar tabela, extraí o zip da pasta DATASET pra ter o txt. (Bianca-01/11/2021)
 #read.table("ATLANTIC_ANTS_dataset.txt", header = TRUE)
@@ -79,6 +72,7 @@ write.table(ants_arrange, "AANTS_genus_selected.txt",
 
 ants_genus_select  <- readr::read_delim(here::here("Atlantic_Ants-main", "DATASET", 
                                                  "AANTS_genus_selected.txt"))
+ants_genus_select
 spec(ants_genus_select)
 view(ants_genus_select)
 ncol(ants_genus_select)
@@ -91,6 +85,7 @@ str(ants_genus_select)
 
 ants_genus_select <- ants_genus_select %>% 
        dplyr::select(Genus, Species, Latitude.y, Longitude.x)
+ants_genus_select
 view(ants_genus_select)
 
 #unir as colunas Genus e Speceies (Diego-02/11/2021)
@@ -100,6 +95,7 @@ ants_genus_select  <- tidyr::unite(data = ants_genus_select,
                                    Genus:Species, 
                                    sep = " ",
                                    remove = FALSE)
+ants_genus_select
 view(ants_genus_select )
 
 #Selecionar as espécies (Diego-03/11/2021)
@@ -115,16 +111,63 @@ view(ants_sp_select)
 # criar geometria a partir dos dados de latlong (Luan 03-11)
 
 ants_sp_sf <- ants_sp_select %>% sf::st_as_sf(coords = c("Longitude.x", "Latitude.y"), crs = 4326)
+ants_sp_sf
+
+tm_shape(ants_sp_sf) +
+  tm_bubbles(col = "sp", size = .3)
 
 #=======
 
 
 #Baixando os dados de temperatura do worldclim (Maria Alice-02/11/2021)
 
-bioclim.data <- getData(name = "worldclim", var = "bio", res = 2.5, path = "Atlantic_Ants-main")
-                        
+download.file(url = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/base/wc2.1_5m_tmax.zip",
+              destfile = "wc2.1_5m_tmax.zip", mode = "wb")
 
-#Ler dados
+download.file(url = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/fut/5m/wc2.1_5m_tmax_CanESM5_ssp245_2081-2100.zip",
+              destfile = "wc2.1_5m_tmax_CanESM5_ssp245_2081-2100.zip", mode = "wb")
+
+download.file(url = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/fut/5m/wc2.1_5m_tmax_CanESM5_ssp585_2081-2100.zip",
+              destfile = "wc2.1_5m_tmax_CanESM5_ssp585_2081-2100.zip", mode = "wb")
+
+unzip("wc2.1_5m_tmax.zip")
+unzip("wc2.1_5m_tmax_CanESM5_ssp245_2081-2100.zip")
+unzip("wc2.1_5m_tmax_CanESM5_ssp585_2081-2100.zip")
+
+
+# import ------------------------------------------------------------------
+
+# raster
+tmax_presente <- raster::stack(dir(pattern = ".tif")) %>% 
+  mean()
+tmax_presente
+
+tmax_fut_sonho_meu <- raster::stack(dir(pattern = "CanESM5_ssp245_2081-2100")) %>% 
+  mean()
+tmax_fut_sonho_meu
+
+tmax_fut_armagedom <- raster::stack(dir(pattern = "CanESM5_ssp245_2081-2100")) %>% 
+  mean()
+tmax_fut_armagedom
+
+# extrair -----------------------------------------------------------------
+
+ants_sp_sf_values <- ants_sp_sf %>% 
+  dplyr::mutate(tmax_presente = raster::extract(tmax_presente, .))
+ants_sp_sf_values
+
+ants_sp_sf_values %>% 
+  group_by(sp) %>% 
+  summarise(min = min(tmax_presente, na.rm = TRUE),
+            max = max(tmax_presente, na.rm = TRUE))
+
+tm_shape(ants_sp_sf_values) +
+  tm_bubbles(col = "tmax_presente", size = .3)
+
+
+# outra parte do script ---------------------------------------------------
+
+# Ler dados
 
 obs.data <- read.csv(file = "Atlantic_Ants-main.csv")
 
