@@ -121,7 +121,7 @@ ants_sp_sf <- ants_sp_select %>% sf::st_as_sf(coords = c("Longitude.x", "Latitud
 
 #Baixando os dados de temperatura do worldclim (temperatura média) (Maria Alice-02/11/2021)
 
-bioclim.data <- getData(name = "worldclim", var = "bio1", res = 2.5, path = "Atlantic_Ants-main")
+bioclim.data <- getData(name = "worldclim", var = "bio", res = 2.5, path = "Atlantic_Ants-main")
                         
 
 #Ler dados
@@ -155,3 +155,15 @@ box()
 
 futureEnv=getData('CMIP5', var='bio', res=2.5, rcp=85, model='HE', year=40)
 names(futureEnv)=names(currentEnv)
+
+# Limitando o conjunto de temperaturas
+currentEnv=dropLayer(currentEnv, c("bio2", "bio3", "bio4", "bio10", "bio11", "bio12", "bio13", "bio14", "bio15", "bio16", "bio17", "bio18", "bio19"))
+futureEnv=dropLayer(futureEnv, c("bio2", "bio3", "bio4", "bio10", "bio11", "bio012", "bio13", "bio14", "bio15", "bio16", "bio17", "bio18", "bio19"))
+
+#Temperaturas ecolhidas:
+BIO1 = Annual Mean Temperature
+BIO5 = Max Temperature of Warmest Month
+BIO6 = Min Temperature of Coldest Month
+BIO7 = Temperature Annual Range (BIO5-BIO6)
+BIO8 = Mean Temperature of Wettest Quarter
+BIO9 = Mean Temperature of Driest Quarter
