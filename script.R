@@ -140,16 +140,16 @@ download.file(url = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/fut/5m/wc2.1
 unzip("worldclim/wc2.1_5m_tmax.zip", exdir = "worldclim")
 unzip("worldclim/wc2.1_5m_tmax_CanESM5_ssp245_2081-2100.zip", exdir = "worldclim")
 unzip("worldclim/wc2.1_5m_tmax_CanESM5_ssp585_2081-2100.zip", exdir = "worldclim")
-
+# depois de unzip, pegar o arquivo .tif futuro lah no final das pastas e jogar para uma 
+# pasta chamada "future" no diretorio "worldclim"
 
 # import ------------------------------------------------------------------
 
 # raster
-tmax_presente <- raster::stack(dir(pattern = ".tif")) %>% 
-  mean()
+tmax_presente <- raster::stack(dir(path = "worldclim", pattern = ".tif"))
 tmax_presente
 
-tmax_fut_sonho_meu <- raster::stack(dir(pattern = "CanESM5_ssp245_2081-2100")) %>% 
+tmax_fut_sonho_meu <- raster::raster(dir(path = "worldclim/future", pattern = "CanESM5_ssp245_2081-2100")) %>% 
   mean()
 tmax_fut_sonho_meu
 
