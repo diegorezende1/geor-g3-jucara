@@ -18,6 +18,7 @@ library(tidyverse)
 library(here)
 library(tidyr)
 library(dplyr)
+library(sf)
 
 # conferir diretório
 here::here()
@@ -97,15 +98,9 @@ view(ants_sp_select)
 #criar um objeto sf (Diego-03/11/2021)
 
 
-# criar geometria com a funcao st_multipoint (Luan 03-11)
-geometria_ants <- st_multipoint(matrix(c(ants_sp_select$Longitude.x, ants_sp_select$Latitude.y), byrow = FALSE, ncol =  2))
-plot(geometria_ants, axes = T, graticule = T)
+# criar geometria a partir dos dados de latlong (Luan 03-11)
 
-# adiciona informacao de projecao e datum (wgs84 geodetico nosso dados)
-geom_ants_sfc <- st_sfc(geometria_ants, crs = 4326)
-plot(geom_ants_sfc, axes = T, graticule = T)
-
-ants_sp_sf <- st_sf(ants_sp_select, geometry = geom_ants_sfc)
+ants_sp_sf <- ants_sp_select %>% sf::st_as_sf(coords = c("Longitude.x", "Latitude.y"), crs = 4326)
 
 #=======
 ##Install packages (Maria Alice-02/11/2021) 
