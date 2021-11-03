@@ -66,24 +66,31 @@ nrow(ants_genus_select)
 summary(ants_genus_select)
 str(ants_genus_select)
 
-<<<<<<< HEAD
 
+#Selecionar colunas de interesses e montando os data.frame (Diego-02/11/2021)
 
+ants_genus_select <- ants_genus_select %>% 
+       dplyr::select(Genus, Species, Latitude.y, Longitude.x)
+view(ants_genus_select)
 
+#unir as colunas Genus e Speceies (Diego-02/11/2021)
 
+ants_genus_select  <- tidyr::unite(data = ants_genus_select, 
+                                   col = "sp",
+                                   Genus:Species, 
+                                   sep = " ",
+                                   remove = FALSE)
+view(ants_genus_select )
 
+#unir as colunas Latitude.x e Longitude.x para criar geometria e fazer o plot de localização (Diego-02/11/2021)
 
+Genus_Species_unir <- tidyr::unite(data = ants_genus_select, 
+                                   col = "Geometry",
+                                   Latitude.y:Longitude.x, 
+                                   sep = ", ",
+                                   remove = FALSE)
 
-
-
-
-
-
-
-
-
-
-
+view(ants_genus_select) 
 =======
 ##Install packages (Maria Alice-02/11/2021) 
 
@@ -106,11 +113,13 @@ library("dismo")
 bioclim.data <- getData(name = "worldclim",
                         var = "bio1",
                         res = 2.5,
-                        path = "data/"Atlantic_Ants-main"
-ants))
+                        path = "data/"Atlantic_Ants-main")
+                        
+ants
 
 #Ler dados
-obs.data <- read.csv(file = "data/Atlantic_Ants-main.csv"
+
+obs.data <- read.csv(file = "data/Atlantic_Ants-main.csv")
 
 #Verificar dados
 
