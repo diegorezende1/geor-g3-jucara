@@ -152,7 +152,7 @@ box()
 
 # Projeção para o futuro (condições ambientais mais extremas) 
 
-futureEnv=getData('CMIP5', var='bio', res=2.5, rcp=85, model='HE', year=40)
+futureEnv <- getData('CMIP5', var='bio', res=2.5, rcp=85, model='HE', year=50)
 names(futureEnv)=names(currentEnv)
 
 # Limitando o conjunto de temperaturas
