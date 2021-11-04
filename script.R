@@ -42,7 +42,7 @@ here::set_here()
 getwd()
 
 #definir diretório de trabalho (Bianca-01/11/2021)
-# setwd("C:/github/geor-g3-jucara/Atlantic_Ants-main/DATASET")
+setwd("C:/github/geor-g3-jucara/Atlantic_Ants-main/DATASET/worldclim")
 
 #importar tabela, extraí o zip da pasta DATASET pra ter o txt. (Bianca-01/11/2021)
 #read.table("ATLANTIC_ANTS_dataset.txt", header = TRUE)
@@ -61,7 +61,7 @@ ants_select
 
 #Selecionar os gêneros (Bianca-01/11/2021)
 ants_genus_select <- ants_select %>%
-dplyr::filter(Genus %in% c("Solenopsis", "Ectatomma", "Eciton"))
+  dplyr::filter(Genus %in% c("Solenopsis", "Ectatomma", "Eciton") & Country %in% c("BRAZIL"))
 ants_genus_select
 
 #Ordenar por ordem alfabética os gêneros (Bianca-01/11/2021)
@@ -129,10 +129,10 @@ download.file(url = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/fut/5m/wc2.1
               destfile = "worldclim/wc2.1_5m_tmax_CanESM5_ssp245_2081-2100.zip", mode = "wb")
 
 download.file(url = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/fut/5m/wc2.1_5m_tmax_CanESM5_ssp585_2081-2100.zip",
-              destfile = "worldcim/wc2.1_5m_tmax_CanESM5_ssp585_2081-2100.zip", mode = "wb")
+              destfile = "worldclim/wc2.1_5m_tmax_CanESM5_ssp585_2081-2100.zip", mode = "wb")
 
 download.file(url = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/base/wc2.1_5m_elev.zip",
-              destfile = "wc2.1_5m_elev.zip", mode = "wb")
+              destfile = "worldclim/wc2.1_5m_elev.zip", mode = "wb")
 
 unzip("worldclim/wc2.1_5m_tmax.zip", exdir = "worldclim")
 unzip("worldclim/wc2.1_5m_tmax_CanESM5_ssp245_2081-2100.zip", exdir = "worldclim")
@@ -143,7 +143,7 @@ unzip("worldclim/wc2.1_5m_elev.zip", exdir = "worldclim")
 
 # raster
 # Presente
-tmax_presente <- dir(path = here::here("worldclim"), pattern = "tmax", full.names = TRUE) %>% 
+tmax_presente <- dir(pattern = "wc2.1_5m_tmax", full.names = TRUE) %>% 
   grep(".tif", ., value = TRUE) %>% 
   raster::stack()
 tmax_presente_mean <- tmax_presente %>% mean()
@@ -151,20 +151,20 @@ tmax_presente_mean
 tmax_presente_max <- tmax_presente %>% max()
 tmax_presente_max
 
-elev <- raster::raster("worldclim/wc2.1_5m_elev.tif")
+elev <- raster::raster("wc2.1_5m_elev.tif")
 elev
 
 # Previsao 1 (2100 cenario de acao)
-tmax_fut_1 <- raster::stack(here::here("worldclim", "wc2.1_5m_tmax_CanESM5_ssp245_2081-2100.tif"))
+tmax_fut_1 <- raster::stack("wc2.1_5m_tmax_CanESM5_ssp245_2081-2100.tif")
 tmax_fut_1_mean <- tmax_fut_1 %>% 
   mean()
 tmax_fut_1_mean
 tmax_fut_1_max <- tmax_fut_1 %>% 
   max()
-
+tmax_fut_1_max
 
 # Previsao 2 (2100 cenario de continuar aquecendo)
-tmax_fut_2 <- raster::stack(here::here("worldclim", "wc2.1_5m_tmax_CanESM5_ssp585_2081-2100.tif"))
+tmax_fut_2 <- raster::stack("wc2.1_5m_tmax_CanESM5_ssp585_2081-2100.tif")
 tmax_fut_2_mean <- tmax_fut_2 %>% 
   mean()
 tmax_fut_2_mean
@@ -230,14 +230,19 @@ ants_sp_sf_values %>%
             max = max(tmax_presente_max, na.rm = TRUE))
 
 tm_shape(ants_sp_sf_values) +
-  tm_bubbles(col = "tmax_presente_max", size = .3, breaks = c(20, 25, 30, 35, 40, 50)) +
+  tm_bubbles(col = "tmax_presente_max", size = .3, alpha = 1, breaks = c(20, 25, 30, 35, 40, 45, 50, 55), 
+             palette = "-RdYlBu") +
   tm_layout(legend.position = c("left", "bottom"))
 
 tm_shape(ants_sp_sf_values) +
-  tm_bubbles(col = "tmax_fut_1_max", size = .3)
+  tm_bubbles(col = "tmax_fut_1_max", size = .3, alpha = 1, breaks = c(20, 25, 30, 35, 40, 45, 50, 55), 
+             palette = "YlOrRd") +
+tm_layout(legend.position = c("left", "bottom"))
 
 tm_shape(ants_sp_sf_values) +
-  tm_bubbles(col = "tmax_fut_2_max", size = .3, alpha = 0.5)
+  tm_bubbles(col = "tmax_fut_2_max", size = .3, alpha = 1, breaks = c(20, 25, 30, 35, 40, 45, 50, 55), 
+             palette = "YlOrRd") +
+  tm_layout(legend.position = c("left", "bottom"))
 
 
 # calcular variacao No de sitios--------- (Luan)
@@ -320,17 +325,155 @@ tm_shape(biomas) +
 
 # mapa com x --------------------------------------------------------------
 
-ants_sp_sf_values_eb <- ants_sp_sf_values %>% 
+ants_sp_sf_values_ecta_cenario <- ants_sp_sf_values %>% 
+  filter(sp == "Ectatomma brunneum") %>% 
+  mutate(presente = ifelse(tmax_presente_max > 40, 0, 1),
+         sobrevive_conservador = ifelse(tmax_fut_1_max > 40, 0, 1),
+         sobrevive_extremo = ifelse(tmax_fut_2_max > 40, 0, 1)) %>% 
+  #dplyr::select(elev, sobreviveu_present, sobreviveu_fut1, sobreviveu_fut2) %>% 
+  tidyr::gather(c(presente, sobrevive_conservador, sobrevive_extremo), 
+                key = "cenario", value = "sobrevivencia") %>% 
+  mutate(sobrevivencia = as.factor(sobrevivencia))
+ants_sp_sf_values_ecta_cenario
+
+#------------------
+
+ecta_presente <- tm_shape(biomas) +
+  tm_polygons() +
+  tm_shape(ants_sp_sf_values_ecta_cenario %>% filter(cenario == "presente")) +
+  tm_symbols(col = "tmax_presente_max",size = .3, shape = "sobrevivencia", shapes = c(4, 20), breaks = c(20, 25, 30, 35, 40, 45, 50, 55), 
+             palette = "YlOrRd") +
+  tm_grid(lines = FALSE, 
+          labels.format = list(big.mark = ""), 
+          labels.rot = c(0, 90)) +
+  tm_layout(legend.position = c("left", "bottom"), 
+            legend.title.size = .1)
+ecta_presente
+
+ecta_conservador <- tm_shape(biomas) +
+  tm_polygons() +
+  tm_shape(ants_sp_sf_values_ecta_cenario %>% filter(cenario == "sobrevive_conservador")) +
+  tm_symbols(col = "tmax_fut_1_max",size = .3, shape = "sobrevivencia", shapes = c(4, 20), breaks = c(20, 25, 30, 35, 40, 45, 50, 55), 
+             palette = "YlOrRd") +
+  tm_grid(lines = FALSE, 
+          labels.format = list(big.mark = ""), 
+          labels.rot = c(0, 90)) +
+  tm_layout(legend.position = c("left", "bottom"), 
+            legend.title.size = .1)
+ecta_conservador
+
+ecta_extremo <- tm_shape(biomas) +
+  tm_polygons() +
+  tm_shape(ants_sp_sf_values_ecta_cenario %>% filter(cenario == "sobrevive_extremo")) +
+  tm_symbols(col = "tmax_fut_2_max",size = .3, shape = "sobrevivencia", shapes = c(4, 20), breaks = c(20, 25, 30, 35, 40, 45, 50, 55), 
+             palette = "YlOrRd") +
+  tm_grid(lines = FALSE, 
+          labels.format = list(big.mark = ""), 
+          labels.rot = c(0, 90)) +
+  tm_layout(legend.position = c("left", "bottom"), 
+            legend.title.size = .1)
+ecta_extremo
+
+ecta_sobre <- tmap_arrange(ecta_presente, ecta_conservador, ecta_extremo, nrow = 1)
+ecta_sobre
+
+
+#Elevação---------------------------
+
+ants_sp_sf_values_ebrunneum <- ants_sp_sf_values %>% 
+  sf::st_drop_geometry() %>% 
   filter(sp == "Ectatomma brunneum") %>% 
   mutate(sobreviveu_present = ifelse(tmax_presente_max > 40, 0, 1),
          sobreviveu_fut1 = ifelse(tmax_fut_1_max > 40, 0, 1),
          sobreviveu_fut2 = ifelse(tmax_fut_2_max > 40, 0, 1)) %>% 
   dplyr::select(elev, sobreviveu_present, sobreviveu_fut1, sobreviveu_fut2) %>% 
-  tidyr::gather(c(sobreviveu_present, sobreviveu_fut1, sobreviveu_fut2), 
-                key = "cenario", value = "sobrevivencia") %>% 
-  mutate(sobrevivencia = as.factor(sobrevivencia))
-ants_sp_sf_values_eb
+  pivot_longer(cols = c(sobreviveu_present, sobreviveu_fut1, sobreviveu_fut2), 
+               names_to = "cenario", values_to = "sobrevivencia")
+ants_sp_sf_values_ebrunneum
 
-tm_shape(ants_sp_sf_values) +
-  tm_symbols(size = .1, shape = "sobrevivencia", shapes = c(20, 4)) +
-  tm_facets("cenario")
+Ectatomma_brunneum <- ggplot(ants_sp_sf_values_ebrunneum, aes(x = elev, y = sobrevivencia, color = cenario)) +
+  geom_point() +
+  geom_smooth(method = "glm", method.args = list(family = "binomial"))+
+  labs(title = paste(),
+       y = "Sobrevivência",
+       x ="Altitude") +
+  scale_x_continuous(limits = c(0,1000), breaks = c(0,250,500,750,1000))+
+  scale_color_discrete(name ="Ectatomma brunneum", labels = c("Futuro 1", "Futuro 2", "Presente"))+
+  theme_classic()+
+  theme(axis.line.x = element_line(colour = "black", size = .3),
+        axis.text.x = element_text(colour = "black", size = 12),
+        axis.title.x = element_text(colour = "black", size = 12),
+        axis.line.y = element_line(colour = "black", size = .3),
+        axis.text.y = element_text(colour = "black", size = 12),
+        axis.title.y = element_text(colour = "black", size = 12),
+        legend.text = element_text(face = "italic", size = 12),
+        legend.position = "none",
+        legend.title = element_blank())
+
+Ectatomma_brunneum
+
+ants_sp_sf_values_eburchellii <- ants_sp_sf_values %>% 
+  sf::st_drop_geometry() %>% 
+  filter(sp == "Eciton burchellii") %>% 
+  mutate(sobreviveu_present = ifelse(tmax_presente_max > 40, 0, 1),
+         sobreviveu_fut1 = ifelse(tmax_fut_1_max > 40, 0, 1),
+         sobreviveu_fut2 = ifelse(tmax_fut_2_max > 40, 0, 1)) %>% 
+  dplyr::select(elev, sobreviveu_present, sobreviveu_fut1, sobreviveu_fut2) %>% 
+  pivot_longer(cols = c(sobreviveu_present, sobreviveu_fut1, sobreviveu_fut2), 
+               names_to = "cenario", values_to = "sobrevivencia")
+ants_sp_sf_values_eburchellii
+
+Eciton_burchellii <- ggplot(ants_sp_sf_values_eburchellii, aes(x = elev, y = sobrevivencia, color = cenario)) +
+  geom_point() +
+  geom_smooth(method = "glm", method.args = list(family = "binomial"))+
+  labs(title = paste(),
+       y = "Sobrevivência",
+       x ="Altitude") +
+  scale_x_continuous(limits = c(0,1000), breaks = c(0,250,500,750,1000))+
+  scale_color_discrete(name ="Eciton burchellii", labels = c("Futuro 1", "Futuro 2", "Presente"))+
+  theme_classic()+
+  theme(axis.line.x = element_line(colour = "black", size = .3),
+        axis.text.x = element_text(colour = "black", size = 12),
+        axis.title.x = element_text(colour = "black", size = 12),
+        axis.line.y = element_line(colour = "black", size = .3),
+        axis.text.y = element_text(colour = "black", size = 12),
+        axis.title.y = element_text(colour = "black", size = 12),
+        legend.position = "none",
+        legend.title = element_blank())
+
+Eciton_burchellii
+
+ants_sp_sf_values_sinvicta <- ants_sp_sf_values %>% 
+  sf::st_drop_geometry() %>% 
+  filter(sp == "Solenopsis invicta") %>% 
+  mutate(sobreviveu_present = ifelse(tmax_presente_max > 40, 0, 1),
+         sobreviveu_fut1 = ifelse(tmax_fut_1_max > 40, 0, 1),
+         sobreviveu_fut2 = ifelse(tmax_fut_2_max > 40, 0, 1)) %>% 
+  dplyr::select(elev, sobreviveu_present, sobreviveu_fut1, sobreviveu_fut2) %>% 
+  pivot_longer(cols = c(sobreviveu_present, sobreviveu_fut1, sobreviveu_fut2), 
+               names_to = "cenario", values_to = "sobrevivencia")
+ants_sp_sf_values_sinvicta
+
+Solenopsis_invicta <- ggplot(ants_sp_sf_values_sinvicta, aes(x = elev, y = sobrevivencia, color = cenario)) +
+  geom_point() +
+  geom_smooth(method = "glm", method.args = list(family = "binomial"))+
+  labs(title = paste(),
+       y = "Sobrevivência",
+       x ="Altitude") +
+  scale_x_continuous(limits = c(0,1000), breaks = c(0,250,500,750,1000))+
+  scale_color_discrete(name ="Solenopsis invicta", labels = c("Futuro otimista", "Futuro crítico", "Presente"))+
+  theme_classic()+
+  theme(axis.line.x = element_line(colour = "black", size = .3),
+        axis.text.x = element_text(colour = "black", size = 12),
+        axis.title.x = element_text(colour = "black", size = 12),
+        axis.line.y = element_line(colour = "black", size = .3),
+        axis.text.y = element_text(colour = "black", size = 12),
+        axis.title.y = element_text(colour = "black", size = 12),
+        legend.text = element_text(colour = "black", size = 12),
+        legend.title = element_blank())
+
+Solenopsis_invicta
+
+tiff("sobrevivencia1.tiff", width = 50, height = 15, units = "cm", res=300)
+gridExtra::grid.arrange(Ectatomma_brunneum, Eciton_burchellii,  Solenopsis_invicta, ncol=3, nrow=1)
+dev.off()
