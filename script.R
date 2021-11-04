@@ -336,7 +336,7 @@ ants_sp_sf_values_ecta_cenario <- ants_sp_sf_values %>%
   mutate(sobrevivencia = as.factor(sobrevivencia))
 ants_sp_sf_values_ecta_cenario
 
-#------------------
+#------------------mapas de x
 
 ecta_presente <- tm_shape(biomas) +
   tm_polygons() +
@@ -376,6 +376,107 @@ ecta_extremo
 
 ecta_sobre <- tmap_arrange(ecta_presente, ecta_conservador, ecta_extremo, nrow = 1)
 ecta_sobre
+
+
+# Para Eciton burchellii
+ants_sp_sf_values_ecit_cenario <- ants_sp_sf_values %>% 
+  filter(sp == "Eciton burchellii") %>% 
+  mutate(presente = ifelse(tmax_presente_max > 40, 0, 1),
+         sobrevive_conservador = ifelse(tmax_fut_1_max > 40, 0, 1),
+         sobrevive_extremo = ifelse(tmax_fut_2_max > 40, 0, 1)) %>% 
+  #dplyr::select(elev, sobreviveu_present, sobreviveu_fut1, sobreviveu_fut2) %>% 
+  tidyr::gather(c(presente, sobrevive_conservador, sobrevive_extremo), 
+                key = "cenario", value = "sobrevivencia") %>% 
+  mutate(sobrevivencia = as.factor(sobrevivencia))
+ants_sp_sf_values_ecit_cenario
+
+
+ecit_presente <- tm_shape(biomas) +
+  tm_polygons() +
+  tm_shape(ants_sp_sf_values_ecit_cenario %>% filter(cenario == "presente")) +
+  tm_symbols(col = "tmax_presente_max",size = .3, shape = "sobrevivencia", shapes = c(4, 20), breaks = c(20, 25, 30, 35, 40, 45, 50, 55), 
+             palette = "YlOrRd") +
+  tm_grid(lines = FALSE, 
+          labels.format = list(big.mark = ""), 
+          labels.rot = c(0, 90)) +
+  tm_layout(legend.position = c("left", "bottom"), legend.title.size = 0.1)
+ecit_presente
+
+ecit_conservador <- tm_shape(biomas) +
+  tm_polygons() +
+  tm_shape(ants_sp_sf_values_ecit_cenario %>% filter(cenario == "sobrevive_conservador")) +
+  tm_symbols(col = "tmax_fut_1_max",size = .3, shape = "sobrevivencia", shapes = c(4, 20), breaks = c(20, 25, 30, 35, 40, 45, 50, 55), 
+             palette = "YlOrRd") +
+  tm_grid(lines = FALSE, 
+          labels.format = list(big.mark = ""), 
+          labels.rot = c(0, 90)) +
+  tm_layout(legend.position = c("left", "bottom"), legend.title.size = 0.1)
+ecit_conservador
+
+ecit_extremo <- tm_shape(biomas) +
+  tm_polygons() +
+  tm_shape(ants_sp_sf_values_ecit_cenario %>% filter(cenario == "sobrevive_extremo")) +
+  tm_symbols(col = "tmax_fut_2_max",size = .3, shape = "sobrevivencia", shapes = c(4, 20), breaks = c(20, 25, 30, 35, 40, 45, 50, 55), 
+             palette = "YlOrRd") +
+  tm_grid(lines = FALSE, 
+          labels.format = list(big.mark = ""), 
+          labels.rot = c(0, 90)) +
+  tm_layout(legend.position = c("left", "bottom"), legend.title.size = 0.1)
+ecit_extremo
+
+ecit_sobre <- tmap_arrange(ecit_presente, ecit_conservador, ecit_extremo, nrow = 1)
+ecit_sobre
+
+# Para Solepsis invicta
+ants_sp_sf_values_sole_cenario <- ants_sp_sf_values %>% 
+  filter(sp == "Solenopsis invicta") %>% 
+  mutate(presente = ifelse(tmax_presente_max > 40, 0, 1),
+         sobrevive_conservador = ifelse(tmax_fut_1_max > 40, 0, 1),
+         sobrevive_extremo = ifelse(tmax_fut_2_max > 40, 0, 1)) %>% 
+  #dplyr::select(elev, sobreviveu_present, sobreviveu_fut1, sobreviveu_fut2) %>% 
+  tidyr::gather(c(presente, sobrevive_conservador, sobrevive_extremo), 
+                key = "cenario", value = "sobrevivencia") %>% 
+  mutate(sobrevivencia = as.factor(sobrevivencia))
+ants_sp_sf_values_sole_cenario
+
+
+sole_presente <- tm_shape(biomas) +
+  tm_polygons() +
+  tm_shape(ants_sp_sf_values_sole_cenario %>% filter(cenario == "presente")) +
+  tm_symbols(col = "tmax_presente_max",size = .3, shape = "sobrevivencia", shapes = c(4, 20), breaks = c(20, 25, 30, 35, 40, 45, 50, 55), 
+             palette = "YlOrRd") +
+  tm_grid(lines = FALSE, 
+          labels.format = list(big.mark = ""), 
+          labels.rot = c(0, 90)) +
+  tm_layout(legend.position = c("left", "bottom"), legend.title.size = 0.1)
+sole_presente
+
+sole_conservador <- tm_shape(biomas) +
+  tm_polygons() +
+  tm_shape(ants_sp_sf_values_sole_cenario %>% filter(cenario == "sobrevive_conservador")) +
+  tm_symbols(col = "tmax_fut_1_max",size = .3, shape = "sobrevivencia", shapes = c(4, 20), breaks = c(20, 25, 30, 35, 40, 45, 50, 55), 
+             palette = "YlOrRd") +
+  tm_grid(lines = FALSE, 
+          labels.format = list(big.mark = ""), 
+          labels.rot = c(0, 90)) +
+  tm_layout(legend.position = c("left", "bottom"), legend.title.size = 0.1)
+sole_conservador
+
+sole_extremo <- tm_shape(biomas) +
+  tm_polygons() +
+  tm_shape(ants_sp_sf_values_sole_cenario %>% filter(cenario == "sobrevive_extremo")) +
+  tm_symbols(col = "tmax_fut_2_max",size = .3, shape = "sobrevivencia", shapes = c(4, 20), breaks = c(20, 25, 30, 35, 40, 45, 50, 55), 
+             palette = "YlOrRd") +
+  tm_grid(lines = FALSE, 
+          labels.format = list(big.mark = ""), 
+          labels.rot = c(0, 90)) +
+  tm_layout(legend.position = c("left", "bottom"), legend.title.size = 0.1)
+sole_extremo
+
+sole_sobre <- tmap_arrange(sole_presente, sole_conservador, sole_extremo, nrow = 1)
+sole_sobre
+
+
 
 
 #Elevação---------------------------
