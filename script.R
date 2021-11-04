@@ -136,48 +136,133 @@ unzip("worldclim/wc2.1_5m_tmax_CanESM5_ssp585_2081-2100.zip", exdir = "worldclim
 # import ------------------------------------------------------------------
 
 # raster
+# Presente
 tmax_presente <- raster::stack(dir(path = here::here("worldclim"), pattern = ".tif"))
 tmax_presente_mean <- raster::stack(dir(path = here::here("worldclim"), pattern = ".tif")) %>% 
   mean()
 tmax_presente_mean
+tmax_presente_max <- raster::stack(dir(path = here::here("worldclim"), pattern = ".tif")) %>% 
+  max()
+
 
 # Previsao 1 (2100 cenario de acao)
 tmax_fut_1 <- raster::stack(dir(path = here::here("worldclim/future"), pattern = "CanESM5_ssp245_2081-2100"))
 tmax_fut_1_mean <- raster::stack(dir(path = here::here("worldclim/future"), pattern = "CanESM5_ssp245_2081-2100")) %>% 
   mean()
 tmax_fut_1_mean
+tmax_fut_1_max <- raster::stack(dir(path = here::here("worldclim/future"), pattern = "CanESM5_ssp245_2081-2100")) %>% 
+  max()
+
 
 # Previsao 2 (2100 cenario de continuar aquecendo)
 tmax_fut_2 <- raster::stack(dir(pattern = "CanESM5_ssp585_2081-2100"))
 tmax_fut_2_mean <- raster::stack(dir(pattern = "CanESM5_ssp585_2081-2100")) %>% 
   mean()
 tmax_fut_2_mean
+tmax_fut_2_max <- raster::stack(dir(pattern = "CanESM5_ssp585_2081-2100")) %>% 
+  max()
+
 
 # extrair -----------------------------------------------------------------
 
+# Media de temperatura maxima ao longo dos meses
 ants_sp_sf_values <- ants_sp_sf %>% 
-  dplyr::mutate(tmax_presente = raster::extract(tmax_presente_mean, .))
+  dplyr::mutate(tmax_presente_mean = raster::extract(tmax_presente_mean, .))
 ants_sp_sf_values
 
 ants_sp_sf_values <- ants_sp_sf_values %>% 
-  dplyr::mutate(tmax_fut_1 = raster::extract(tmax_fut_1_mean, .))
+  dplyr::mutate(tmax_fut_1_mean = raster::extract(tmax_fut_1_mean, .))
 ants_sp_sf_values
 
 ants_sp_sf_values <- ants_sp_sf_values %>% 
-  dplyr::mutate(tmax_fut_2 = raster::extract(tmax_fut_2_mean, .))
+  dplyr::mutate(tmax_fut_2_mean = raster::extract(tmax_fut_2_mean, .))
 ants_sp_sf_values
 
+# Maxima de temperatura maxima no ano todo
+ants_sp_sf_values <- ants_sp_sf_values %>% 
+  dplyr::mutate(tmax_presente_max = raster::extract(tmax_presente_max, .))
+ants_sp_sf_values
 
+ants_sp_sf_values <- ants_sp_sf_values %>% 
+  dplyr::mutate(tmax_fut_1_max = raster::extract(tmax_fut_1_max, .))
+ants_sp_sf_values
+
+ants_sp_sf_values <- ants_sp_sf_values %>% 
+  dplyr::mutate(tmax_fut_2_max = raster::extract(tmax_fut_2_max, .))
+ants_sp_sf_values
+
+# Visualizar minimo e maximo (da temp max media ou max total) 
+# para cada spp em um periodo do tempo
 ants_sp_sf_values %>% 
   group_by(sp) %>% 
-  summarise(min = min(tmax_presente, na.rm = TRUE),
-            max = max(tmax_presente, na.rm = TRUE))
+  summarise(min = min(tmax_presente_max, na.rm = TRUE),
+            max = max(tmax_presente_max, na.rm = TRUE))
 
 tm_shape(ants_sp_sf_values) +
-  tm_bubbles(col = "tmax_presente", size = .3)
+  tm_bubbles(col = "tmax_presente_max", size = .3)
 
 tm_shape(ants_sp_sf_values) +
-  tm_bubbles(col = "tmax_fut_1", size = .3)
+  tm_bubbles(col = "tmax_fut_1_max", size = .3)
 
 tm_shape(ants_sp_sf_values) +
-  tm_bubbles(col = "tmax_fut_2", size = .3, alpha = 0.5)
+  tm_bubbles(col = "tmax_fut_2_max", size = .3, alpha = 0.5)
+
+
+# calcular variacao No de sitios--------- (Luan)
+
+# Duvida (Luan): pontos de ocorrencia muito proximos -> nao e preciso
+# controlar para autocorrelacao espacial??
+
+
+# Numero de ocorrencias sobreviventes
+
+# Presente
+ants_sp_sf_values %>% group_by(sp) %>% summarize(occ = n())
+
+# Futuro 1 (numero de locais que a temperatura se manteria aceitavel)
+ants_sp_sf_values %>% group_by(sp) %>% 
+  summarize(surv_Ectatomma = sum(tmax_fut_1_max < 40 & sp == "Ectatomma brunneum", na.rm = T),
+            surv_Eciton = sum(tmax_fut_1_max < 40 & sp == "Eciton burchellii", na.rm = T),
+            surv_Solenopsis = sum(tmax_fut_1_max < 45.3 & sp == "Solenopsis invicta", na.rm = T))
+
+# Futuro 2 (numero de locais que a temperatura se manteria aceitavel)
+ants_sp_sf_values %>% group_by(sp) %>% 
+  summarize(surv_Ectatomma = sum(tmax_fut_2_max < 40 & sp == "Ectatomma brunneum", na.rm = T),
+            surv_Eciton = sum(tmax_fut_2_max < 40 & sp == "Eciton burchellii", na.rm = T),
+            surv_Solenopsis = sum(tmax_fut_2_max < 45.3 & sp == "Solenopsis invicta", na.rm = T))
+
+
+## biomas (Diego)
+biomas <- geobr::read_biomes(showProgress = FALSE) %>%
+  dplyr::filter(name_biome != "Sistema Costeiro")
+biomas
+
+
+## combinar biomas com cenários de temperatura
+
+tm_shape(biomas) +
+  tm_polygons() +
+  tm_shape(ants_sp_sf_values) +
+  tm_bubbles(col = "tmax_presente_max", size = .1) +
+  tm_facets(by = "sp", free.coords = FALSE) +
+  tm_grid(lines = FALSE, 
+          labels.format = list(big.mark = ""), 
+          labels.rot = c(0, 90))
+
+
+tm_shape(biomas) +
+  tm_polygons() +
+  tm_shape(ants_sp_sf_values) +
+  tm_bubbles(col = "tmax_fut_1_max", size = .1) +
+  tm_grid(lines = FALSE, 
+          labels.format = list(big.mark = ""), 
+          labels.rot = c(0, 90))
+
+
+tm_shape(biomas) +
+  tm_polygons() +
+  tm_shape(ants_sp_sf_values) +
+  tm_bubbles(col = "tmax_fut_2_max", size = .1, alpha = 0.5)+
+  tm_grid(lines = FALSE, 
+          labels.format = list(big.mark = ""), 
+          labels.rot = c(0, 90))
